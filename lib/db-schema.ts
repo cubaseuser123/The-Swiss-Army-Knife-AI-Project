@@ -1,4 +1,4 @@
-import { index, pgTable, serial, text, vector, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import { index, pgTable, serial, text, vector, timestamp, boolean, jsonb, integer } from "drizzle-orm/pg-core";
 
 // Better Auth tables - use text IDs as Better Auth generates string IDs
 export const users = pgTable("users", {

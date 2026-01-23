@@ -13,8 +13,7 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userId = parseInt(session.user.id, 10);
-        const conversations = await getConversations(userId);
+        const conversations = await getConversations(session.user.id);
         return NextResponse.json(conversations);
     } catch (error) {
         console.error("Error fetching conversations:", error);
@@ -35,8 +34,7 @@ export async function POST() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userId = parseInt(session.user.id, 10);
-        const conversation = await createConversation(userId);
+        const conversation = await createConversation(session.user.id);
         return NextResponse.json(conversation);
     } catch (error) {
         console.error("Error creating conversation:", error);
