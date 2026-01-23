@@ -1,0 +1,282 @@
+{
+    "categories": [
+        {
+            "id": "document-intelligence",
+            "name": "Document Intelligence",
+            "icon": "📄",
+            "description": "Powerful document processing and analysis tools",
+            "features": [
+                {
+                    "id": "document-converter",
+                    "title": "Document Converter",
+                    "description": "Convert between PDF, Markdown, and HTML formats seamlessly"
+                },
+                {
+                    "id": "document-summarizer",
+                    "title": "Document Summarizer",
+                    "description": "Generate concise summaries of lengthy documents in seconds"
+                },
+                {
+                    "id": "document-comparison",
+                    "title": "Document Comparison",
+                    "description": "Compare multiple documents and identify key differences"
+                },
+                {
+                    "id": "citation-generator",
+                    "title": "Citation Generator",
+                    "description": "Automatically generate APA and MLA citations from document metadata"
+                },
+                {
+                    "id": "info-extractor",
+                    "title": "Information Extractor",
+                    "description": "Extract emails, phone numbers, dates, and URLs from any document"
+                }
+            ]
+        },
+        {
+            "id": "text-utilities",
+            "name": "Text Utilities",
+            "icon": "✍️",
+            "description": "Comprehensive text processing and transformation tools",
+            "features": [
+                {
+                    "id": "grammar-check",
+                    "title": "Grammar & Spell Check",
+                    "description": "Professional-grade grammar and spelling correction"
+                },
+                {
+                    "id": "paraphrase",
+                    "title": "Paraphrase & Rewrite",
+                    "description": "Rewrite text while maintaining original meaning"
+                },
+                {
+                    "id": "tone-adjustment",
+                    "title": "Tone Adjustment",
+                    "description": "Adjust text between formal, casual, and professional tones"
+                },
+                {
+                    "id": "case-converter",
+                    "title": "Case Converter",
+                    "description": "Convert between camelCase, snake_case, kebab-case, and more"
+                },
+                {
+                    "id": "word-count",
+                    "title": "Word & Character Count",
+                    "description": "Detailed text statistics and reading time estimates"
+                },
+                {
+                    "id": "translation",
+                    "title": "Translation",
+                    "description": "Translate text across 100+ languages instantly"
+                },
+                {
+                    "id": "sentiment-analysis",
+                    "title": "Sentiment Analysis",
+                    "description": "Analyze emotional tone and sentiment in text"
+                }
+            ]
+        },
+        {
+            "id": "code-tools",
+            "name": "Code Tools",
+            "icon": "💻",
+            "description": "Developer-focused code analysis and formatting utilities",
+            "features": [
+                {
+                    "id": "code-formatter",
+                    "title": "Code Formatter",
+                    "description": "Beautify and format code in JavaScript, Python, and more"
+                },
+                {
+                    "id": "code-explainer",
+                    "title": "Code Explainer",
+                    "description": "Get plain English explanations of complex code"
+                },
+                {
+                    "id": "bug-finder",
+                    "title": "Bug Finder",
+                    "description": "Identify potential issues and code vulnerabilities"
+                },
+                {
+                    "id": "test-generator",
+                    "title": "Unit Test Generator",
+                    "description": "Automatically generate unit tests for your functions"
+                }
+            ]
+        },
+        {
+            "id": "data-extraction",
+            "name": "Data Extraction",
+            "icon": "📊",
+            "description": "Extract and structure data from unstructured sources",
+            "features": [
+                {
+                    "id": "contact-extractor",
+                    "title": "Contact Information Extractor",
+                    "description": "Extract emails, phone numbers, and URLs from any text"
+                },
+                {
+                    "id": "table-converter",
+                    "title": "Table to JSON/CSV",
+                    "description": "Convert tables and structured text into JSON or CSV format"
+                },
+                {
+                    "id": "entity-recognition",
+                    "title": "Entity Recognition",
+                    "description": "Identify and extract names, locations, organizations, and dates"
+                }
+            ]
+        },
+        {
+            "id": "web-integration",
+            "name": "Web & Link Tools",
+            "icon": "🔗",
+            "description": "Powerful web scraping and link management utilities",
+            "features": [
+                {
+                    "id": "youtube-transcript",
+                    "title": "YouTube Transcript Extractor",
+                    "description": "Extract and save full transcripts from any YouTube video"
+                },
+                {
+                    "id": "url-shortener",
+                    "title": "URL Shortener",
+                    "description": "Create short, shareable links with click tracking"
+                },
+                {
+                    "id": "qr-generator",
+                    "title": "QR Code Generator",
+                    "description": "Generate customizable QR codes for any URL or text"
+                },
+                {
+                    "id": "music-converter",
+                    "title": "Music Platform Converter",
+                    "description": "Convert links between Spotify, Apple Music, YouTube Music, and Tidal"
+                },
+                {
+                    "id": "media-downloader",
+                    "title": "Social Media Downloader",
+                    "description": "Download videos from YouTube, Twitter, Instagram, and TikTok"
+                },
+                {
+                    "id": "link-preview",
+                    "title": "Link Preview & Metadata",
+                    "description": "Extract titles, descriptions, and images from any URL"
+                }
+            ]
+        },
+        {
+            "id": "agentic-workflows",
+            "name": "AI Agents",
+            "icon": "🤖",
+            "description": "Autonomous multi-step workflows powered by LangGraph",
+            "features": [
+                {
+                    "id": "research-assistant",
+                    "title": "Research Assistant",
+                    "description": "Autonomous web research with source finding, summarization, and knowledge base building"
+                },
+                {
+                    "id": "meeting-prep",
+                    "title": "Meeting Prep Assistant",
+                    "description": "Auto-generate meeting briefs using Gmail, Calendar, Slack, Drive, and web search"
+                }
+            ]
+        }
+    ],
+    "modes": [
+        {
+            "id": "document-mode",
+            "title": "Document Mode",
+            "icon": "📄",
+            "tagline": "Upload, Analyze, Understand",
+            "description": "Upload documents and chat with their content using RAG-powered intelligence",
+            "features": [
+                "Multi-document Q&A",
+                "Summarization",
+                "Citation generation",
+                "Format conversion",
+                "Data extraction"
+            ]
+        },
+        {
+            "id": "web-mode",
+            "title": "Web Mode",
+            "icon": "🌐",
+            "tagline": "Research, Scrape, Synthesize",
+            "description": "Extract information from the web, YouTube, and social media",
+            "features": [
+                "YouTube transcripts",
+                "Web scraping",
+                "Link management",
+                "Social media downloads",
+                "Research automation"
+            ]
+        },
+        {
+            "id": "utility-mode",
+            "title": "Utility Mode",
+            "icon": "🔧",
+            "tagline": "Transform, Convert, Generate",
+            "description": "27+ tools for text, code, data, and media processing",
+            "features": [
+                "Text utilities",
+                "Code formatting",
+                "Data extraction",
+                "Format conversion",
+                "QR codes & short links"
+            ]
+        },
+        {
+            "id": "agent-mode",
+            "title": "Agent Mode",
+            "icon": "🤖",
+            "tagline": "Automate, Orchestrate, Execute",
+            "description": "AI agents that orchestrate complex workflows across multiple tools",
+            "features": [
+                "Research Assistant",
+                "Meeting Prep",
+                "Multi-tool orchestration",
+                "Gmail/Calendar/Slack/Drive integration",
+                "Transparent workflows"
+            ]
+        }
+    ],
+    "techStack": [
+        {
+            "name": "Next.js",
+            "description": "React framework for production",
+            "icon": "▲"
+        },
+        {
+            "name": "Vercel AI SDK",
+            "description": "Build AI-powered applications",
+            "icon": "🤖"
+        },
+        {
+            "name": "LangGraph.js",
+            "description": "Agentic workflow orchestration",
+            "icon": "🔗"
+        },
+        {
+            "name": "Neon Postgres",
+            "description": "Serverless Postgres with pgvector",
+            "icon": "🐘"
+        },
+        {
+            "name": "Drizzle ORM",
+            "description": "Type-safe database toolkit",
+            "icon": "💧"
+        },
+        {
+            "name": "Better Auth",
+            "description": "Modern authentication solution",
+            "icon": "🔐"
+        },
+        {
+            "name": "11+ MCP Servers",
+            "description": "Model Context Protocol integrations",
+            "icon": "🔌"
+        }
+    ]
+}

@@ -1,0 +1,143 @@
+{
+    "about": {
+        "sections": [
+            {
+                "type": "introduction",
+                "title": "Hey, I'm Aaryan 👋",
+                "content": [
+                    "I'm a third-year Computer Engineering student who got tired of building the same old projects. You know the drill - another todo app, another chat clone, another portfolio that looks like everyone else's.",
+                    "When I started diving into the modern AI stack - Vercel AI SDK, RAG systems, vector databases, LangGraph, and MCPs - I realized something: most student projects just scratch the surface. They build a ChatGPT clone, call it a day, and move on.",
+                    "I wanted to do something different. Something that would actually showcase what I'm learning."
+                ]
+            },
+            {
+                "type": "problem",
+                "title": "The Challenge",
+                "content": [
+                    "How do you build a project that demonstrates expertise in RAG, agentic workflows, tool orchestration, and full-stack development - without just making another chatbot clone?",
+                    "The answer hit me: instead of building a narrow AI assistant, why not build a Swiss Army knife? A platform that shows I can integrate 27+ different tools, orchestrate complex agent workflows, and build production-ready infrastructure."
+                ]
+            },
+            {
+                "type": "solution",
+                "title": "What I Built",
+                "content": [
+                    "Swiss Army Knife AI is my answer to the 'just another clone' problem. It's a RAG-powered chatbot that goes way beyond document Q&A.",
+                    "I integrated LangGraph.js for agentic workflows, built 11+ MCP servers for tool connectivity, implemented vector similarity search with Neon Postgres, and created an interface where AI agents can autonomously orchestrate across Gmail, Calendar, Slack, and Drive.",
+                    "This isn't just a project - it's proof of concept. Proof that I can build complex, production-ready systems. Proof that I understand modern AI infrastructure from the ground up."
+                ]
+            },
+            {
+                "type": "open-source",
+                "title": "Open Source & Community",
+                "content": [
+                    "Here's the thing - I've built the foundation with 27 tools and 2 agentic workflows, but this project is far from done.",
+                    "I'm planning to add 2-3 more agents myself, but beyond that, I want this to be a community-driven project. There are hundreds of potential tools, workflows, and integrations that could be added.",
+                    "Whether you want to contribute a new MCP server, add a utility tool, or build a complex agent workflow - this project is open for contributions. Let's build something bigger together."
+                ],
+                "callToAction": {
+                    "primary": "Contribute on GitHub",
+                    "secondary": "Read the docs"
+                }
+            },
+            {
+                "type": "learning",
+                "title": "What I Learned",
+                "technologies": [
+                    {
+                        "name": "RAG & Vector Databases",
+                        "description": "Built semantic search with pgvector, implemented document chunking strategies, and optimized retrieval for multi-document queries"
+                    },
+                    {
+                        "name": "Agentic Workflows",
+                        "description": "Designed complex multi-step agent workflows using LangGraph.js, with decision-making, tool orchestration, and error handling"
+                    },
+                    {
+                        "name": "Model Context Protocol",
+                        "description": "Created 11+ MCP servers for tool integration, from YouTube transcripts to Gmail automation"
+                    },
+                    {
+                        "name": "Full-Stack TypeScript",
+                        "description": "End-to-end type safety with Next.js, Drizzle ORM, and Vercel AI SDK - no Python backend needed"
+                    },
+                    {
+                        "name": "API Integrations",
+                        "description": "Integrated with 15+ external APIs - from Google Workspace to social media platforms"
+                    }
+                ]
+            },
+            {
+                "type": "resume-project",
+                "title": "Why This Matters",
+                "content": [
+                    "As a student, I needed more than just academic projects on my resume. I needed something that showed I could build real-world systems.",
+                    "This project demonstrates:",
+                    "• System design - architecting a multi-agent platform from scratch",
+                    "• Production skills - database design, API integration, auth, deployment",
+                    "• Modern AI stack - hands-on experience with cutting-edge tools",
+                    "• Open source leadership - building something others can contribute to",
+                    "It's not just about the code - it's about showing I can take complex technologies and turn them into something useful."
+                ]
+            },
+            {
+                "type": "tech-showcase",
+                "title": "Under the Hood",
+                "stack": {
+                    "frontend": [
+                        "Next.js App Router",
+                        "TypeScript",
+                        "Tailwind CSS"
+                    ],
+                    "backend": [
+                        "Next.js API Routes",
+                        "Drizzle ORM",
+                        "Better Auth"
+                    ],
+                    "ai": [
+                        "Vercel AI SDK",
+                        "LangGraph.js",
+                        "OpenAI API"
+                    ],
+                    "database": [
+                        "Neon Postgres",
+                        "pgvector for embeddings"
+                    ],
+                    "integrations": [
+                        "11+ MCP Servers",
+                        "15+ External APIs"
+                    ],
+                    "deployment": [
+                        "Vercel",
+                        "Serverless Architecture"
+                    ]
+                }
+            }
+        ],
+        "stats": [
+            {
+                "number": "27+",
+                "label": "Tools & Features",
+                "description": "From document processing to agent workflows"
+            },
+            {
+                "number": "11+",
+                "label": "MCP Servers",
+                "description": "Custom tool integrations built from scratch"
+            },
+            {
+                "number": "2",
+                "label": "AI Agents",
+                "description": "Complex multi-step autonomous workflows"
+            },
+            {
+                "number": "100%",
+                "label": "TypeScript",
+                "description": "End-to-end type safety across the stack"
+            }
+        ],
+        "personalNote": {
+            "title": "A Note on Learning",
+            "content": "This project taught me something important: the best way to learn isn't to follow tutorials or build toy apps. It's to set an ambitious goal and figure out how to make it work. Every feature here forced me to read docs, debug weird errors, and understand concepts at a deeper level. That's the kind of learning that sticks."
+        }
+    }
+}

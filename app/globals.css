@@ -1,9 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Original theme colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -44,6 +49,23 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* Custom Landing Page Colors */
+  --color-landing-primary: #FE4A23;
+  --color-landing-primary-dark: #D93D1A;
+  --color-landing-background: #E0B784;
+  --color-landing-background-lighter: #F7E6D0;
+  --color-landing-surface: #FDFBF7;
+  --color-landing-surface-alt: #D4AA78;
+  --color-landing-border: #C99F70;
+  --color-landing-text-main: #121212;
+  --color-landing-text-muted: #333333;
+  --color-landing-grid: #CDA575;
+
+  /* Custom Font Families */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono-custom: 'JetBrains Mono', monospace;
 }
 
 :root {
@@ -119,7 +141,71 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+/* Chat UI Utilities */
+@layer utilities {
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-landing-text-main/10 rounded-full;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-landing-text-main/20;
+  }
+
+  /* Grid Texture Background */
+  .grid-texture {
+    background-image: 
+      linear-gradient(rgba(18, 18, 18, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(18, 18, 18, 0.03) 1px, transparent 1px);
+    background-size: 10px 10px;
+  }
+
+  /* Blocky Shadow Effect */
+  .shadow-blocky {
+    box-shadow: 4px 4px 0px rgba(18, 18, 18, 0.1);
+  }
+  .shadow-blocky-dark {
+    box-shadow: 4px 4px 0px #121212;
+  }
+  .shadow-blocky-lg {
+    box-shadow: 8px 8px 0px rgba(18, 18, 18, 0.05);
+  }
+
+  /* Shimmer Animation */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(254, 74, 35, 0) 0%,
+      rgba(254, 74, 35, 0.05) 50%,
+      rgba(254, 74, 35, 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite linear;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Active button press effect */
+  .btn-press:active {
+    transform: translate(2px, 2px);
+    box-shadow: none !important;
   }
 }

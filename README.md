@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Swiss Army Knife AI
 
-## Getting Started
+An AI-powered productivity workspace that goes beyond simple document Q&A. Built with RAG architecture, 27+ utility tools, and intelligent agentic workflows.
 
-First, run the development server:
+## 🌟 Features
+
+### Universal Memory RAG
+- Chat with documents (PDF, DOCX, CSV, TXT, MD)
+- Cross-conversation search - reference Chat 1 from Chat 10
+- AI cites sources with conversation context
+
+### 27+ Productivity Tools
+- **Document Intelligence**: Summarize, compare, extract citations, convert formats
+- **Text Utilities**: Grammar check, paraphrase, tone adjustment, translation
+- **Code Tools**: Format, explain, debug, generate tests
+- **Web Integration**: URL shortener, QR codes, YouTube transcripts, music platform converter
+- **Data Extraction**: Pull emails, phones, URLs, convert tables
+
+### Agentic Workflows (LangGraph)
+- **Research Assistant**: Multi-step web research with automatic synthesis
+- **Meeting Prep**: Auto-generate briefings from calendar, emails, and docs
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **AI**: Vercel AI SDK v6 + LangGraph.js
+- **Database**: Neon Postgres + Drizzle ORM
+- **Auth**: Better Auth
+- **AI Model**: Google Gemini 2.0 Flash
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 20.12.7+
+- npm 9.2.0+
+- Neon Postgres database
+- Google API key
+
+### Installation
 
 ```bash
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Add your NEON_DATABASE_URL, GOOGLE_API_KEY, etc.
+
+# Run database migrations
+npx drizzle-kit generate
+npx drizzle-kit push
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📚 Documentation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See the `/docs` directory for detailed implementation guides:
+- `phase1_auth_migration.md` - Better Auth setup
+- `phase2_chat_ui.md` - Chat interface (coming soon)
+- And more...
 
-## Learn More
+## 🔑 Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+NEON_DATABASE_URL=          # Neon Postgres connection string
+GOOGLE_API_KEY=             # For Gemini AI
+NEXT_PUBLIC_APP_URL=        # Your app URL
+GOOGLE_CLIENT_ID=           # OAuth (optional)
+GOOGLE_CLIENT_SECRET=       # OAuth (optional)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📜 License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT

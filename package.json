@@ -1,5 +1,5 @@
 {
-  "name": "rag-chatbot",
+  "name": "swiss-army-knife-ai",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,7 +11,6 @@
   "dependencies": {
     "@ai-sdk/google": "^3.0.10",
     "@ai-sdk/google-vertex": "^4.0.17",
-    "@clerk/nextjs": "^6.36.7",
     "@hookform/resolvers": "^5.2.2",
     "@langchain/textsplitters": "^1.0.1",
     "@neondatabase/serverless": "^1.0.2",
@@ -46,6 +45,7 @@
     "@types/pdf-parse": "^1.1.5",
     "@xyflow/react": "^12.10.0",
     "ai": "^6.0.37",
+    "better-auth": "^1.4.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

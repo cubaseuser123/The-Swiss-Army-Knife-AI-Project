@@ -1,0 +1,138 @@
+{
+    "roadmap": {
+        "phases": [
+            {
+                "id": "phase-1",
+                "title": "Phase 1: Foundation",
+                "status": "completed",
+                "items": [
+                    {
+                        "label": "Basic RAG chatbot",
+                        "completed": true
+                    },
+                    {
+                        "label": "Document upload",
+                        "completed": true
+                    },
+                    {
+                        "label": "Vector search",
+                        "completed": true
+                    },
+                    {
+                        "label": "Better Auth migration",
+                        "completed": true
+                    },
+                    {
+                        "label": "Chat history UI",
+                        "completed": true
+                    },
+                    {
+                        "label": "Unified chat interface",
+                        "completed": true
+                    }
+                ]
+            },
+            {
+                "id": "phase-2",
+                "title": "Phase 2: Document Intelligence",
+                "status": "pending",
+                "items": [
+                    {
+                        "label": "Document summarizer",
+                        "completed": false
+                    },
+                    {
+                        "label": "Citation generator",
+                        "completed": false
+                    },
+                    {
+                        "label": "Document comparison",
+                        "completed": false
+                    },
+                    {
+                        "label": "Format converter",
+                        "completed": false
+                    },
+                    {
+                        "label": "Info extraction",
+                        "completed": false
+                    }
+                ]
+            },
+            {
+                "id": "phase-3",
+                "title": "Phase 3: Utility Tools",
+                "status": "pending",
+                "items": [
+                    {
+                        "label": "Text utilities bundle",
+                        "completed": false
+                    },
+                    {
+                        "label": "Code tools bundle",
+                        "completed": false
+                    },
+                    {
+                        "label": "Data extraction tools",
+                        "completed": false
+                    },
+                    {
+                        "label": "Link utilities",
+                        "completed": false
+                    },
+                    {
+                        "label": "YouTube transcript extractor",
+                        "completed": false
+                    }
+                ]
+            },
+            {
+                "id": "phase-4",
+                "title": "Phase 4: Agentic Workflows",
+                "status": "pending",
+                "items": [
+                    {
+                        "label": "LangGraph.js integration",
+                        "completed": false
+                    },
+                    {
+                        "label": "Research Assistant agent",
+                        "completed": false
+                    },
+                    {
+                        "label": "Meeting Prep Assistant agent",
+                        "completed": false
+                    },
+                    {
+                        "label": "MCP server integrations",
+                        "completed": false
+                    }
+                ]
+            },
+            {
+                "id": "phase-5",
+                "title": "Phase 5: Polish & Deploy",
+                "status": "pending",
+                "items": [
+                    {
+                        "label": "UI/UX improvements",
+                        "completed": false
+                    },
+                    {
+                        "label": "Error handling",
+                        "completed": false
+                    },
+                    {
+                        "label": "Documentation",
+                        "completed": false
+                    },
+                    {
+                        "label": "Production deployment",
+                        "completed": false
+                    }
+                ]
+            }
+        ],
+        "overallProgress": 20
+    }
+}

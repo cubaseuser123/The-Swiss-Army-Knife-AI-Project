@@ -1,6 +1,6 @@
 import { cosineDistance, desc, gt, sql } from "drizzle-orm";
 import { db } from "./db-config";
-import { documents } from "./db-schema";
+import { embeddings } from "./db-schema";
 import { generateEmbedding } from '@/lib/embeddings'
 
 export async function searchDocuments(
@@ -8,13 +8,13 @@ export async function searchDocuments(
 ) {
     const embedding = await generateEmbedding(query);
 
-    const similarity = sql<number>`1-(${cosineDistance(documents.embedding, embedding)})`;
+    const similarity = sql<number>`1-(${cosineDistance(embeddings.embedding, embedding)})`;
 
     const similarDocuments = await db.select({
-        id: documents.id,
-        content: documents.content,
+        id: embeddings.id,
+        content: embeddings.content,
         similarity,
-    }).from(documents)
+    }).from(embeddings)
         .where(gt(similarity, threshold))
         .orderBy(desc(similarity))
         .limit(limit);

@@ -15,6 +15,20 @@
       "when": 1768539832145,
       "tag": "0001_burly_silverclaw",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769170294544,
+      "tag": "0002_spooky_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1769175504612,
+      "tag": "0003_demonic_power_pack",
+      "breakpoints": true
     }
   ]
 }
