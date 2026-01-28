@@ -9,8 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/gateway": "^3.0.25",
     "@ai-sdk/google": "^3.0.10",
     "@ai-sdk/google-vertex": "^4.0.17",
+    "@ai-sdk/react": "^3.0.59",
     "@hookform/resolvers": "^5.2.2",
     "@langchain/textsplitters": "^1.0.1",
     "@neondatabase/serverless": "^1.0.2",

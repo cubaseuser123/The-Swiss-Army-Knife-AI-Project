@@ -1,34 +1,25 @@
 import { gateway } from '@ai-sdk/gateway';
-import { convertToModelMessages, streamText, UIMessage, tool, InferUITools, UIDataTypes, stepCountIs } from 'ai';
-import { z } from 'zod';
+import { convertToModelMessages, streamText, UIMessage, tool, InferUITools, UIDataTypes, stepCountIs, jsonSchema } from 'ai';
 import { searchDocuments } from '@/lib/search';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { saveMessage } from '@/lib/services/messages';
 
+// Define tools outside for type inference using jsonSchema for Gemini compatibility
 const tools = {
-    // Tool commented out for debugging/stability until Phase 2
-    /*
     search_knowledge_base: tool({
-        description: "Search the knowledge base for the relevant information",
-        parameters: z.object({
-            query: z.string().describe("The search query to find relevant documents"),
+        description: "Search the knowledge base for relevant information",
+        inputSchema: jsonSchema<{ query: string }>({
+            type: 'object',
+            properties: {
+                query: { type: 'string', description: 'The search query' }
+            },
+            required: ['query']
         }),
         execute: async ({ query }: { query: string }) => {
-            try {
-                const results = await searchDocuments(query, 3, 0.5);
-                if (results.length === 0) {
-                    return "No relevant documents found";
-                }
-                const formattedResults = results.map((r, i) => `[${i + 1}] ${r.content}`).join("\n\n");
-                return formattedResults;
-            } catch (error) {
-                console.error("Search error:", error);
-                return "Error searching the knowledge base";
-            }
-        }
-    } as any)
-    */
+            return "Search unavailable";
+        },
+    }),
 };
 
 export type ChatTools = InferUITools<typeof tools>;
@@ -68,10 +59,50 @@ export async function POST(req: Request) {
         }
 
         const result = streamText({
-            model: gateway("google/gemini-2.0-flash"),
+            model: gateway("mistral/devstral-2"),
             messages: await convertToModelMessages(messages),
-            tools,
-            system: `You are a helpful assistant for Swiss Army Knife AI. When users ask questions, search the knowledge base for relevant information. Always search before answering if the question might relate to uploaded documents. Base your answers on the search results when available. Give concise answers that directly answer what the user is asking for.
+            tools: {
+                search_knowledge_base: tool({
+                    description: "Search the knowledge base for relevant information",
+                    inputSchema: jsonSchema<{ query: string }>({
+                        type: 'object',
+                        properties: {
+                            query: { type: 'string', description: 'The search query' }
+                        },
+                        required: ['query']
+                    }),
+                    execute: async (input: { query: string }) => {
+                        try {
+                            console.log("Tool input received:", JSON.stringify(input));
+                            const query = input?.query;
+                            if (!query || typeof query !== 'string') {
+                                return "Invalid search query provided";
+                            }
+                            // SECURITY: Pass session.user.id
+                            const results = await searchDocuments(query, session.user.id);
+                            if (results.length === 0) {
+                                return "No relevant documents found";
+                            }
+                            const formattedResults = results.map((r, i) => `[${i + 1}] ${r.content}`).join("\n\n");
+                            return formattedResults;
+                        } catch (error) {
+                            console.error("Search error:", error);
+                            return "Error searching the knowledge base";
+                        }
+                    },
+                }),
+            },
+            system: `You are a helpful assistant for Swiss Army Knife AI. You have access to a persistent memory system via the search_knowledge_base tool.
+
+CRITICAL RULE: You MUST call search_knowledge_base FIRST before answering ANY of these types of questions:
+1. Questions about the user's preferences (food, colors, hobbies, etc.)
+2. Questions about facts the user may have shared (their job, location, interests)
+3. Questions about uploaded documents or files
+4. ANY question where the user implies prior shared information
+5. Questions phrased as "what do I like", "what is my", "do you remember", etc.
+
+DO NOT say "I don't have memory" or "I can't remember" before searching. ALWAYS search first.
+If the search returns no results, THEN you may ask the user to tell you.
 
 The user's name is ${session.user.name || 'there'}.`,
             stopWhen: stepCountIs(3),

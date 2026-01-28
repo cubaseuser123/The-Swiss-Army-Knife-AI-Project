@@ -17,11 +17,14 @@ This document covers the complete chat route implementation with:
 the-sakai-proj/
 ├── app/
 │   ├── chat/
-│   │   ├── page.tsx                    [MODIFY] - Main chat wrapper
+│   │   ├── page.tsx                    [MODIFY] - Main chat wrapper with Upload UI
+│   │   ├── actions.ts                  [NEW] - Chat server actions (file processing)
 │   │   ├── [conversationId]/
 │   │   │   └── page.tsx                [NEW] - Individual conversation
 │   │   └── layout.tsx                  [NEW] - Chat layout with sidebar
+│   ├── upload/                         [DEPRECATED] - Kept for reference
 │   ├── api/
+
 │   │   ├── chat/
 │   │   │   └── route.ts                [MODIFY] - Add auth + persistence
 │   │   └── conversations/
@@ -238,31 +241,60 @@ export default async function ChatLayout({
 
 ### 2. Chat Page (`app/chat/page.tsx`)
 
-**REPLACE ENTIRELY:**
+**UPDATED with File Upload:**
 ```typescript
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { createConversation } from "@/lib/services/conversations";
+"use client";
 
-export default async function ChatPage() {
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
+import { useState, useRef } from "react";
+import { MessageSquare, Sparkles, Paperclip, Loader2, Send } from "lucide-react";
+import { processProcessedFile } from "./actions";
+// ... imports
 
-    if (!session) {
-        redirect("/sign-in");
-    }
+export default function ChatPage() {
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Create a new conversation and redirect to it
-    const conversation = await createConversation(session.user.id);
-    redirect(`/chat/${conversation.id}`);
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        // ... file upload logic calling processProcessedFile
+    };
+
+    return (
+        <div className="flex-1 flex flex-col h-full relative">
+            {/* Header ... */}
+            
+            {/* Main Content ... */}
+            
+            {/* Input Area with Paperclip ... */}
+             <div className="p-4 border-t border-landing-border/50 bg-background/80 backdrop-blur-sm">
+                {/* ... UI inputs ... */}
+             </div>
+        </div>
+    );
 }
 ```
 
 ---
 
-### 3. Conversation Page (`app/chat/[conversationId]/page.tsx`)
+### 3. Chat Actions (`app/chat/actions.ts`)
+
+**NEW:**
+```typescript
+'use server';
+
+import { PDFParse } from 'pdf-parse';
+import { db } from '@/lib/db-config';
+import { embeddings as embeddingsTable } from '@/lib/db-schema';
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+// ... imports
+
+export async function processProcessedFile(formData: FormData) {
+    // Authenticated file processing logic
+    // ...
+}
+```
+
+### 4. Conversation Page (`app/chat/[conversationId]/page.tsx`)
 
 ```typescript
 import { auth } from "@/lib/auth";

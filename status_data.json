@@ -34,28 +34,28 @@
             },
             {
                 "id": "phase-2",
-                "title": "Phase 2: Document Intelligence",
-                "status": "pending",
+                "title": "Phase 2: Cross-Conversation RAG",
+                "status": "completed",
                 "items": [
                     {
-                        "label": "Document summarizer",
-                        "completed": false
+                        "label": "File Upload System",
+                        "completed": true
                     },
                     {
-                        "label": "Citation generator",
-                        "completed": false
+                        "label": "Vector Database Integration",
+                        "completed": true
                     },
                     {
-                        "label": "Document comparison",
-                        "completed": false
+                        "label": "Cross-Conversation Memory",
+                        "completed": true
                     },
                     {
-                        "label": "Format converter",
-                        "completed": false
+                        "label": "Semantic Search & Chunking",
+                        "completed": true
                     },
                     {
-                        "label": "Info extraction",
-                        "completed": false
+                        "label": "RAG Response Generation",
+                        "completed": true
                     }
                 ]
             },
@@ -133,6 +133,6 @@
                 ]
             }
         ],
-        "overallProgress": 20
+        "overallProgress": 40
     }
 }

@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { cn } from "@/lib/utils";
-import { Paperclip, ArrowUp, Square, Search, CheckCircle, MessageSquare, Loader2 } from "lucide-react";
+import { Paperclip, ArrowUp, Square, Search, CheckCircle, MessageSquare, Loader2, Pin } from "lucide-react";
+import { toast } from "sonner";
+import { processProcessedFile } from "@/app/chat/actions";
 
 type Message = {
     id: number;
@@ -30,11 +32,78 @@ export function ChatInterface({ conversationId, initialMessages, conversationTit
     }));
 
     const { messages, sendMessage, status, setMessages } = useChat({
-        api: "/api/chat",
         id: conversationId.toString(),
-        body: { conversationId },
         initialMessages: initialMessagesMapped,
     });
+
+    const [isPinning, setIsPinning] = useState(false);
+    const [showPinButton, setShowPinButton] = useState(false);
+
+    // File Upload State
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const result = await processProcessedFile(formData, conversationId);
+
+            if (result.success) {
+                toast.success(result.message);
+            } else {
+                toast.error(result.error || "Upload failed");
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            toast.error("An error occurred during upload");
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+    };
+
+    useEffect(() => {
+        if (status === 'ready' && messages.length > 0) {
+            const timer = setTimeout(() => setShowPinButton(true), 500); // Slight delay for effect
+            return () => clearTimeout(timer);
+        } else if (status === 'streaming' || status === 'submitted') {
+            setShowPinButton(false);
+        }
+    }, [status, messages.length]);
+
+    const handlePin = async () => {
+        setIsPinning(true);
+        try {
+            const res = await fetch('/api/chat/pin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ conversationId }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.skipped) {
+                    toast.info("Conversation too short to pin.");
+                } else {
+                    toast.success("Conversation pinned to memory!");
+                }
+                setShowPinButton(false);
+            } else {
+                toast.error("Failed to pin conversation.");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Error pinning conversation.");
+        } finally {
+            setIsPinning(false);
+        }
+    };
 
     useEffect(() => {
         if (messages.length === 0 && initialMessages.length > 0) {
@@ -57,7 +126,7 @@ export function ChatInterface({ conversationId, initialMessages, conversationTit
     };
 
     return (
-        <div className="flex-1 flex flex-col bg-gradient-to-br from-landing-background via-landing-background to-landing-background-lighter overflow-hidden h-full">
+        <div className="flex-1 flex flex-col bg-gradient-to-br from-landing-background via-landing-background to-landing-background-lighter overflow-hidden h-full relative">
             {/* Header */}
             <header className="h-14 border-b border-landing-border/50 flex items-center justify-between px-6 bg-landing-text-main/[0.02] backdrop-blur-sm z-10 shrink-0">
                 <div className="flex items-center gap-3">
@@ -124,6 +193,31 @@ export function ChatInterface({ conversationId, initialMessages, conversationTit
                     {(status === "submitted" || status === "streaming") && (
                         <LoadingIndicator />
                     )}
+
+                    {/* Pin Button - Inline Fade In */}
+                    <div className={cn(
+                        "transition-all duration-1000 ease-in-out overflow-hidden flex-shrink-0",
+                        showPinButton ? "opacity-100 max-h-20 translate-y-0" : "opacity-0 max-h-0 translate-y-4"
+                    )}>
+                        <div className="flex justify-start pl-10 pb-4 pt-2">
+                            <button
+                                onClick={handlePin}
+                                disabled={isPinning}
+                                className={cn(
+                                    "group flex items-center gap-2 bg-landing-surface/50 border border-landing-border/50 hover:border-landing-primary/50 shadow-sm p-2 pr-4 rounded-full text-landing-text-main transition-all duration-300",
+                                    isPinning && "animate-pulse cursor-wait"
+                                )}
+                                title="Pin conversation to memory"
+                            >
+                                <div className="size-6 bg-landing-primary/10 rounded-full flex items-center justify-center group-hover:bg-landing-primary group-hover:text-white transition-colors">
+                                    <Pin className={cn("size-3.5 transition-transform group-hover:rotate-45", isPinning && "animate-spin")} />
+                                </div>
+                                <span className="text-[12px] font-medium text-landing-text-muted group-hover:text-landing-text-main transition-colors">
+                                    {isPinning ? "Memorizing conversation..." : "Pin this to memory"}
+                                </span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -131,11 +225,24 @@ export function ChatInterface({ conversationId, initialMessages, conversationTit
             <div className="px-6 pb-6 pt-4 shrink-0">
                 <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative">
                     <div className="relative bg-landing-surface border border-landing-border rounded-2xl flex items-end p-2 min-h-[56px] shadow-lg shadow-landing-text-main/5 focus-within:shadow-xl focus-within:shadow-landing-text-main/10 focus-within:border-landing-text-main/30 transition-all">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            onChange={handleFileSelect}
+                            accept=".pdf,.txt,.md"
+                        />
                         <button
                             type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploading}
                             className="p-3 text-landing-text-main/40 hover:text-landing-primary transition-colors rounded-lg hover:bg-landing-text-main/5"
                         >
-                            <Paperclip className="size-5" />
+                            {isUploading ? (
+                                <Loader2 className="size-5 animate-spin" />
+                            ) : (
+                                <Paperclip className="size-5" />
+                            )}
                         </button>
 
                         <textarea
@@ -170,6 +277,7 @@ export function ChatInterface({ conversationId, initialMessages, conversationTit
                     </p>
                 </form>
             </div>
+
         </div>
     );
 }

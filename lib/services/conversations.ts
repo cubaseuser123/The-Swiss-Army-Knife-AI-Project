@@ -1,5 +1,5 @@
 import { db } from "@/lib/db-config";
-import { conversations, type InsertConversation } from '@/lib/db-schema';
+import { conversations, messages, embeddings, type InsertConversation } from '@/lib/db-schema';
 import { eq, desc, and } from 'drizzle-orm';
 
 export async function createConversation(userId: string, title: string = 'New Chat') {
@@ -44,9 +44,17 @@ export async function deleteConversation(id: number, userId: string) {
         throw new Error("Conversation not found");
     }
 
+    // Delete embeddings first (foreign key constraint)
+    await db.delete(embeddings).where(eq(embeddings.conversationId, id));
+
+    // Delete messages
+    await db.delete(messages).where(eq(messages.conversationId, id));
+
+    // Delete conversation
     await db
         .delete(conversations)
         .where(eq(conversations.id, id));
 
     return conversation;
 }
+

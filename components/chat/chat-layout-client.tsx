@@ -5,6 +5,16 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Plus, MessageSquare, Trash2, PanelLeftClose, PanelLeft, Home, LogOut, ChevronUp, Loader2, Pencil, Check, X } from "lucide-react";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type Conversation = {
     id: number;
@@ -41,6 +51,7 @@ export function ChatLayoutClient({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
     const currentConversationId = pathname.match(/\/chat\/(\d+)/)?.[1];
+    const [chatToDelete, setChatToDelete] = useState<number | null>(null);
 
     useEffect(() => {
         fetchConversations();
@@ -83,19 +94,27 @@ export function ChatLayoutClient({ children }: { children: ReactNode }) {
         }
     };
 
-    const handleDeleteConversation = async (e: React.MouseEvent, id: number) => {
+    const handleDeleteClick = (e: React.MouseEvent, id: number) => {
         e.preventDefault();
         e.stopPropagation();
+        setChatToDelete(id);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!chatToDelete) return;
+
         try {
-            const res = await fetch(`/api/conversations/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/conversations/${chatToDelete}`, { method: 'DELETE' });
             if (res.ok) {
-                setConversations(prev => prev.filter(c => c.id !== id));
-                if (currentConversationId === id.toString()) {
+                setConversations(prev => prev.filter(c => c.id !== chatToDelete));
+                if (currentConversationId === chatToDelete.toString()) {
                     router.push('/chat');
                 }
             }
         } catch (error) {
             console.error('Error deleting conversation:', error);
+        } finally {
+            setChatToDelete(null);
         }
     };
 
@@ -289,7 +308,7 @@ export function ChatLayoutClient({ children }: { children: ReactNode }) {
                                                         <Pencil className="size-3" />
                                                     </button>
                                                     <button
-                                                        onClick={(e) => handleDeleteConversation(e, conv.id)}
+                                                        onClick={(e) => handleDeleteClick(e, conv.id)}
                                                         className="p-1 hover:text-red-500 rounded transition-colors"
                                                     >
                                                         <Trash2 className="size-3" />
@@ -380,6 +399,26 @@ export function ChatLayoutClient({ children }: { children: ReactNode }) {
                     {children}
                 </main>
             </div>
-        </ChatContext.Provider>
+
+            <AlertDialog open={!!chatToDelete} onOpenChange={(open) => !open && setChatToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Conversation</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this conversation? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setChatToDelete(null)}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleConfirmDelete}
+                            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                        >
+                            Delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </ChatContext.Provider >
     );
 }

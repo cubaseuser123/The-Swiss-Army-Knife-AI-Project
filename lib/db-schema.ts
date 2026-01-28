@@ -58,7 +58,7 @@ export const conversations = pgTable("conversations", {
 
 export const messages = pgTable("messages", {
     id: serial("id").primaryKey(),
-    conversationId: serial("conversation_id").references(() => conversations.id),
+    conversationId: integer("conversation_id").references(() => conversations.id),
     role: text("role").notNull(),
     content: text("content").notNull(),
     toolCalls: jsonb("tool_calls"),
@@ -72,7 +72,7 @@ export const embeddings = pgTable("embeddings", {
     embedding: vector("embedding", { dimensions: 768 }),
     sourceType: text("source_type").notNull(),
     sourceId: text("source_id").notNull(),
-    conversationId: serial("conversation_id").references(() => conversations.id),
+    conversationId: integer("conversation_id").references(() => conversations.id),
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => [
@@ -86,7 +86,7 @@ export const embeddings = pgTable("embeddings", {
 export const workflowsRuns = pgTable("workflow_runs", {
     id: serial("id").primaryKey(),
     userId: text("user_id").references(() => users.id).notNull(),
-    conversationId: serial("conversation_id").references(() => conversations.id),
+    conversationId: integer("conversation_id").references(() => conversations.id),
     workflowType: text("workflow_type").notNull(),
     status: text("status").notNull(),
     input: jsonb("input"),
