@@ -14,22 +14,50 @@ This document captures the **final, approved plan** for implementing the Knowled
 
 We need utilities to parse files and perform secure searches.
 
+first, install the necessary parsers:
+```bash
+npm install mammoth papaparse @types/mammoth @types/papaparse
+```
+
 ### 1.1 [NEW] `lib/file-processors.ts`
 **Goal**: Cleanly handle PDF and Text parsing.
 
 ```typescript
 import pdf from 'pdf-parse';
+import mammoth from 'mammoth';
+import Papa from 'papaparse';
 
 export async function parseFile(file: File): Promise<string> {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // 1. PDF
     if (file.type === 'application/pdf') {
         const data = await pdf(buffer);
         return data.text;
     }
 
-    if (file.type === 'text/plain' || file.type === 'text/markdown') {
+    // 2. DOCX
+    if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        const result = await mammoth.extractRawText({ buffer });
+        return result.value;
+    }
+
+    // 3. CSV (Convert to stringified JSON for better context)
+    if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+        const text = buffer.toString('utf-8');
+        const { data } = Papa.parse(text, { header: true, skipEmptyLines: true });
+        return JSON.stringify(data, null, 2);
+    }
+
+    // 4. Text / Markdown / JSON
+    if (
+        file.type === 'text/plain' || 
+        file.type === 'text/markdown' || 
+        file.type === 'application/json' ||
+        file.name.endsWith('.md') ||
+        file.name.endsWith('.txt')
+    ) {
         return buffer.toString('utf-8');
     }
 
@@ -211,7 +239,7 @@ import { processProcessedFile } from "@/app/chat/actions";
         ref={fileInputRef} 
         className="hidden" 
         onChange={handleFileSelect}
-        accept=".pdf,.txt,.md"
+        accept=".pdf,.txt,.md,.docx,.csv,.json"
     />
 
     {/* Update the Paperclip button to trigger the input */}

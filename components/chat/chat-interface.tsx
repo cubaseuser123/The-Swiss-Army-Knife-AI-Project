@@ -230,7 +230,7 @@ export function ChatInterface({ conversationId, initialMessages, conversationTit
                             ref={fileInputRef}
                             className="hidden"
                             onChange={handleFileSelect}
-                            accept=".pdf,.txt,.md"
+                            accept=".pdf,.txt,.md,.docx,.csv,.json"
                         />
                         <button
                             type="button"
