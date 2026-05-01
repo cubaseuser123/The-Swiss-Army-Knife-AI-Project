@@ -125,3 +125,77 @@ export const compare_documents = tool({
         }
     }
 });
+
+//3. Extract specific info 
+
+export const extract_info = tool({
+    description: `Extract specific information from documents like emails, phone numbers, dates, URLs, names, or custom patterns. Use this when:
+        - User asks to find all emails in a document
+        - User wants to extract dates or phone numbers
+        - User asks for a list of URLs or links
+        - User wants to extract specific entities`,
+    inputSchema: jsonSchema<{
+        query: string;
+        extract_type: 'emails' | 'phones' | 'urls' | 'dates' | 'names' | 'custom';
+        custom_pattern?: string,
+    }>({
+        type: 'object',
+        properties: {
+            query: {
+                type: 'string',
+                description: 'Search query to find the document to extract from'
+            },
+            extract_type: {
+                type: 'string',
+                enum: ['emails', 'phones', 'urls', 'dates', 'names', 'custom'],
+                description: 'Type of information to extract'
+            },
+            custom_pattern: {
+                type: 'string',
+                description: 'Custom description of what to extract (only used when extract_type is custom)'
+            }
+        },
+        required: ['query', 'extract_type']
+    }),
+    execute: async ({ query, extract_type, custom_pattern }, { experimental_context }) => {
+        const { userId } = experimental_context as { userId: string };
+        try {
+            const results = await searchDocuments(query, userId, 10, 0.3);
+            if (results.length === 0) {
+                return "No documents found matching your query."
+            }
+            const content = results.map(r => r.content).join('\n\n');
+            const patterns: Record<string, RegExp> = {
+                emails: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+                phones: /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g,
+                urls: /https?:\/\/[^\s<>"{}|\\^`\[\]]+/g,
+                dates: /\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})|(\w{3,9}\s+\d{1,2},?\s+\d{4})|(\d{4}[\/\-]\d{2}[\/\-]\d{2})\b/g,
+            };
+            if (extract_type === 'names' || extract_type === 'custom') {
+                const extractInstruction = extract_type === 'names' ? 'Extract all person names mentioned in the text.' : `Extract the following : ${custom_pattern}`;
+                const { text: extracted } = await generateText({
+                    model: gateway("mistral/devstral-2"),
+                    system: `You are an information extraction expert. ${extractInstruction} Return results as a bullet list. If nothing is found, say "No matches found."`,
+                    prompt: content,
+                });
+                return `**Extracted ${extract_type === 'names' ? 'Names' : 'Information'}:**\n${extracted}`;
+            }
+
+
+            const pattern = patterns[extract_type];
+            const matches = content.match(pattern);
+
+            if (!matches || matches.length === 0) {
+                return `No ${extract_type} found in the document.`;
+            }
+
+
+            const uniqueMatches = [...new Set(matches)];
+
+            return `**Found ${uniqueMatches.length} ${extract_type}:**\n${uniqueMatches.map(m => `- ${m}`).join('\n')}`;
+        } catch (error) {
+            console.error("Extraction error:", error);
+            return "Error extracting information. Please try again.";
+        }
+    }
+});

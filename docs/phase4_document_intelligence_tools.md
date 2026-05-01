@@ -8,7 +8,7 @@ This phase adds **5 document intelligence tools** that enhance the AI's ability 
 2. **Document Comparison** - Compare 2+ documents for differences/similarities
 3. **Extract Specific Info** - Pull emails, dates, URLs, phone numbers
 4. **Document Converter** - PDF → Text, Markdown → HTML, etc.
-5. **Citation Generator** - Generate APA/MLA/Chicago citations
+5. **Citation Generator** - Generate APA/MLA/Chicago citations **(MCP Server via FastMCP)**
 
 ---
 
@@ -50,12 +50,15 @@ npm install turndown        # HTML → Markdown conversion
 ```
 the-sakai-proj/
 ├── lib/
-│   └── tools/
-│       └── document-tools.ts          [NEW] - All document tool definitions
+│   ├── tools/
+│   │   └── document-tools.ts          [NEW] - Document tool definitions (tools 1-4)
+│   └── mcp/
+│       ├── citation-server.ts         [NEW] - FastMCP Citation Generator server
+│       └── citation-client.ts         [NEW] - MCP client bridge → AI SDK tool
 ├── app/
 │   └── api/
 │       └── chat/
-│           └── route.ts               [MODIFY] - Register new tools
+│           └── route.ts               [MODIFY] - Register tools + MCP client
 ```
 
 ---
@@ -373,16 +376,146 @@ Use this when user wants to reformat their content.`,
 });
 
 // ============================================
-// 5. CITATION GENERATOR
+// 5. CITATION GENERATOR → Moved to MCP Server
+//    See: lib/mcp/citation-server.ts (FastMCP)
+//    Bridge: lib/mcp/citation-client.ts
 // ============================================
+
+// ============================================
+// EXPORT ALL TOOLS (inline only — citation is MCP)
+// ============================================
+export const documentTools = {
+    summarize_document,
+    compare_documents,
+    extract_info,
+    convert_document,
+};
+
+// Tool types for type inference
+export type DocumentTools = typeof documentTools;
+```
+
+---
+
+## 📦 Additional Dependencies (Citation MCP Server)
+
+```bash
+npm install fastmcp
+```
+
+> [!NOTE]
+> FastMCP uses Zod for schema validation, which is already installed in this project (`zod@^4.3.5`).
+> The `ai` package and `@ai-sdk/gateway` are also already available for the server's internal LLM call.
+
+---
+
+## ✨ Citation Generator — FastMCP MCP Server
+
+As specified in the [master implementation plan](./master_implementation_plan.md#phase-4-document-intelligence-tools-5-features), the Citation Generator is built as a **standalone MCP server** using FastMCP, not an inline AI SDK tool.
+
+This gives us:
+- A fully independent, testable unit
+- Reusability by any MCP-compatible client (not just our chat)
+- A foundation for the FastMCP server architecture outlined in `future_scope.md`
+
+### 2a. MCP Server (`lib/mcp/citation-server.ts`) [NEW]
+
+```typescript
+import { FastMCP } from "fastmcp";
+import { z } from "zod";
+import { generateText } from "ai";
+import { gateway } from "@ai-sdk/gateway";
+
+const citationServer = new FastMCP({
+    name: "Swiss Army Citation Server",
+    version: "1.0.0",
+});
+
+citationServer.addTool({
+    name: "generate_citation",
+    description: `Generate academic citations in APA, MLA, or Chicago format. Use this when:
+- User asks for a citation
+- User needs to cite a source
+- User asks for bibliography formatting`,
+    parameters: z.object({
+        source_type: z.enum(["book", "article", "website", "journal"])
+            .describe("Type of source being cited"),
+        format: z.enum(["apa", "mla", "chicago"])
+            .describe("Citation format style"),
+        title: z.string()
+            .describe("Title of the work"),
+        authors: z.string().optional()
+            .describe('Author(s) in format "Last, First" or "Last, First & Last, First"'),
+        year: z.string().optional()
+            .describe("Publication year"),
+        url: z.string().optional()
+            .describe("URL for websites or online articles"),
+        publisher: z.string().optional()
+            .describe("Publisher name (for books)"),
+        journal_name: z.string().optional()
+            .describe("Journal name (for journal articles)"),
+        volume: z.string().optional()
+            .describe("Volume number (for journals)"),
+        pages: z.string().optional()
+            .describe('Page range (e.g., "123-145")'),
+        access_date: z.string().optional()
+            .describe("Date accessed (for websites)"),
+    }),
+    execute: async (args) => {
+        const {
+            source_type, format, title, authors, year,
+            url, publisher, journal_name, volume, pages, access_date,
+        } = args;
+
+        const sourceInfo = [
+            `Source Type: ${source_type}`,
+            `Title: ${title}`,
+            authors && `Authors: ${authors}`,
+            year && `Year: ${year}`,
+            publisher && `Publisher: ${publisher}`,
+            journal_name && `Journal: ${journal_name}`,
+            volume && `Volume: ${volume}`,
+            pages && `Pages: ${pages}`,
+            url && `URL: ${url}`,
+            access_date && `Access Date: ${access_date}`,
+        ].filter(Boolean).join("\n");
+
+        const { text: citation } = await generateText({
+            model: gateway("mistral/devstral-2"),
+            system: `You are an academic citation expert. Generate a properly formatted ${format.toUpperCase()} citation. Return ONLY the citation, no explanations. Use italics where appropriate (use *asterisks* for markdown italics).`,
+            prompt: `Generate a ${format.toUpperCase()} citation for:\n${sourceInfo}`,
+        });
+
+        return `**${format.toUpperCase()} Citation:**\n${citation}`;
+    },
+});
+
+export { citationServer };
+```
+
+### 2b. MCP Client Bridge (`lib/mcp/citation-client.ts`) [NEW]
+
+This file bridges the FastMCP server into a Vercel AI SDK `tool()` so the chat route can consume it alongside the other inline tools.
+
+```typescript
+import { tool, jsonSchema } from "ai";
+import { citationServer } from "./citation-server";
+
+/**
+ * Bridges the FastMCP Citation Server tool into a Vercel AI SDK tool.
+ * 
+ * The MCP server handles all validation and execution internally.
+ * This wrapper simply proxies the call so it can sit alongside
+ * other AI SDK tools in the chat route's `tools` object.
+ */
 export const generate_citation = tool({
     description: `Generate academic citations in APA, MLA, or Chicago format. Use this when:
 - User asks for a citation
 - User needs to cite a source
 - User asks for bibliography formatting`,
     inputSchema: jsonSchema<{
-        source_type: 'book' | 'article' | 'website' | 'journal';
-        format: 'apa' | 'mla' | 'chicago';
+        source_type: "book" | "article" | "website" | "journal";
+        format: "apa" | "mla" | "chicago";
         title: string;
         authors?: string;
         year?: string;
@@ -393,111 +526,56 @@ export const generate_citation = tool({
         pages?: string;
         access_date?: string;
     }>({
-        type: 'object',
+        type: "object",
         properties: {
-            source_type: { 
-                type: 'string', 
-                enum: ['book', 'article', 'website', 'journal'],
-                description: 'Type of source being cited'
+            source_type: {
+                type: "string",
+                enum: ["book", "article", "website", "journal"],
+                description: "Type of source being cited",
             },
-            format: { 
-                type: 'string', 
-                enum: ['apa', 'mla', 'chicago'],
-                description: 'Citation format style'
+            format: {
+                type: "string",
+                enum: ["apa", "mla", "chicago"],
+                description: "Citation format style",
             },
-            title: { 
-                type: 'string', 
-                description: 'Title of the work'
-            },
-            authors: { 
-                type: 'string', 
-                description: 'Author(s) in format "Last, First" or "Last, First & Last, First"'
-            },
-            year: { 
-                type: 'string', 
-                description: 'Publication year'
-            },
-            url: { 
-                type: 'string', 
-                description: 'URL for websites or online articles'
-            },
-            publisher: { 
-                type: 'string', 
-                description: 'Publisher name (for books)'
-            },
-            journal_name: { 
-                type: 'string', 
-                description: 'Journal name (for journal articles)'
-            },
-            volume: { 
-                type: 'string', 
-                description: 'Volume number (for journals)'
-            },
-            pages: { 
-                type: 'string', 
-                description: 'Page range (e.g., "123-145")'
-            },
-            access_date: { 
-                type: 'string', 
-                description: 'Date accessed (for websites)'
-            }
+            title: { type: "string", description: "Title of the work" },
+            authors: { type: "string", description: "Author(s)" },
+            year: { type: "string", description: "Publication year" },
+            url: { type: "string", description: "URL" },
+            publisher: { type: "string", description: "Publisher name" },
+            journal_name: { type: "string", description: "Journal name" },
+            volume: { type: "string", description: "Volume number" },
+            pages: { type: "string", description: "Page range" },
+            access_date: { type: "string", description: "Date accessed" },
         },
-        required: ['source_type', 'format', 'title']
+        required: ["source_type", "format", "title"],
     }),
     execute: async (input) => {
         try {
-            const { source_type, format, title, authors, year, url, publisher, journal_name, volume, pages, access_date } = input;
-
-            // Build citation using AI for accurate formatting
-            const sourceInfo = `
-Source Type: ${source_type}
-Title: ${title}
-${authors ? `Authors: ${authors}` : ''}
-${year ? `Year: ${year}` : ''}
-${publisher ? `Publisher: ${publisher}` : ''}
-${journal_name ? `Journal: ${journal_name}` : ''}
-${volume ? `Volume: ${volume}` : ''}
-${pages ? `Pages: ${pages}` : ''}
-${url ? `URL: ${url}` : ''}
-${access_date ? `Access Date: ${access_date}` : ''}
-            `.trim();
-
-            const { text: citation } = await generateText({
-                model: gateway("google/gemini-2.0-flash"),
-                system: `You are an academic citation expert. Generate a properly formatted ${format.toUpperCase()} citation. Return ONLY the citation, no explanations. Use italics where appropriate (use *asterisks* for markdown italics).`,
-                prompt: `Generate a ${format.toUpperCase()} citation for:\n${sourceInfo}`,
-            });
-
-            return `**${format.toUpperCase()} Citation:**\n${citation}`;
+            // Proxy the call to the FastMCP server's tool
+            const result = await citationServer.callTool("generate_citation", input);
+            return typeof result === "string" ? result : JSON.stringify(result);
         } catch (error) {
-            console.error("Citation generation error:", error);
+            console.error("Citation MCP error:", error);
             return "Error generating citation. Please try again.";
         }
-    }
+    },
 });
-
-// ============================================
-// EXPORT ALL TOOLS
-// ============================================
-export const documentTools = {
-    summarize_document,
-    compare_documents,
-    extract_info,
-    convert_document,
-    generate_citation,
-};
-
-// Tool types for type inference
-export type DocumentTools = typeof documentTools;
 ```
+
+> [!IMPORTANT]
+> **Why the bridge pattern?** The chat route uses Vercel AI SDK's `streamText` which expects `tool()` definitions.
+> FastMCP servers expose tools via the MCP protocol. The bridge wraps the MCP tool call so both 
+> systems work together seamlessly. When we add more MCP servers later (Prettier, LanguageTool, etc.),
+> each will follow the same pattern: `lib/mcp/{name}-server.ts` + `lib/mcp/{name}-client.ts`.
 
 ---
 
 ## ✏️ Modifications
 
-### 2. Update Chat Route (`app/api/chat/route.ts`)
+### 3. Update Chat Route (`app/api/chat/route.ts`)
 
-**Goal:** Register all document tools in the main chat API.
+**Goal:** Register inline document tools + the MCP-bridged citation tool.
 
 **BEFORE:**
 ```typescript
@@ -521,8 +599,10 @@ import { searchDocuments } from '@/lib/search';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { saveMessage } from '@/lib/services/messages';
-// NEW: Import document tools
+// NEW: Import inline document tools (summarize, compare, extract, convert)
 import { documentTools } from '@/lib/tools/document-tools';
+// NEW: Import MCP-bridged citation tool
+import { generate_citation } from '@/lib/mcp/citation-client';
 
 // ... existing code ...
 
@@ -575,8 +655,11 @@ export async function POST(req: Request) {
                     },
                 }),
 
-                // NEW: Document Intelligence Tools
+                // NEW: Document Intelligence Tools (inline)
                 ...documentTools,
+
+                // NEW: Citation Generator (MCP Server via FastMCP)
+                generate_citation,
             },
             system: `You are a helpful assistant for Swiss Army Knife AI. You have access to powerful document tools:
 
@@ -651,27 +734,17 @@ User: "Convert this to a bullet list: [paste text]"
 Expected: AI reformats content as bullets
 ```
 
-### Test 5: Citation Generator
+### Test 5: Citation Generator (MCP)
 ```
 User: "Generate an APA citation for the book 'Clean Code' by Robert Martin, 2008"
-Expected: AI returns properly formatted APA citation
+Expected: AI returns properly formatted APA citation via FastMCP server
 ```
 
----
-
-## 📋 Task Checklist
-
-- [ ] Create `lib/tools/document-tools.ts`
-- [ ] Add import to `app/api/chat/route.ts`
-- [ ] Register tools in streamText config
-- [ ] Add `toolContext: { userId: session.user.id }`  
-- [ ] Update system prompt with tool descriptions
-- [ ] Increase `stopWhen` count to allow multi-step
-- [ ] Test: summarize_document
-- [ ] Test: compare_documents
-- [ ] Test: extract_info
-- [ ] Test: convert_document
-- [ ] Test: generate_citation
+### Test 6: Citation MCP Server Standalone
+```bash
+# Test the MCP server independently using FastMCP's built-in inspector
+npx fastmcp inspect lib/mcp/citation-server.ts
+```
 
 ---
 
@@ -680,17 +753,25 @@ Expected: AI returns properly formatted APA citation
 ### "Tool not found" error
 - Verify import path is correct: `@/lib/tools/document-tools`
 - Check that `documentTools` is spread correctly: `...documentTools`
+- Verify `generate_citation` is imported from `@/lib/mcp/citation-client`
 
 ### "userId undefined" in tools
 - Ensure `experimental_context: { userId: session.user.id }` is set in streamText config
 - Tools receive context as second argument: `execute: async (input, { experimental_context }) => {}`
 - Cast the context: `const { userId } = experimental_context as { userId: string };`
+- Note: Citation tool does NOT need userId (no user-scoped data)
 
 ### Summarization returns "No documents found"
 - Upload a document first
 - Check that the search query matches document content
 - Lower threshold in `searchDocuments` if needed
 
+### Citation MCP server errors
+- Run `npx fastmcp inspect lib/mcp/citation-server.ts` to test the server in isolation
+- Verify `fastmcp` is installed: `npm ls fastmcp`
+- Check that `citationServer.callTool` is available in the bridge — this is FastMCP's internal invocation API
+- If the bridge fails, the error will be caught and return a user-friendly message
+
 ### Citation format incorrect
-- The tool uses AI generation - results should be accurate for standard sources
+- The tool uses AI generation — results should be accurate for standard sources
 - For edge cases, user can manually adjust the output
